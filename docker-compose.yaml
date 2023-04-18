@@ -4,7 +4,7 @@ services:
     environment:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
-      - POSTGRES_DB=ny_taxi
+      - POSTGRES_DB=climate_data
     volumes:
       - "./data/climate_data:/var/lib/postgresql/data:rw"
     ports:

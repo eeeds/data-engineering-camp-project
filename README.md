@@ -155,4 +155,35 @@ docker ps
 docker-compose down
 ```
 
+## Dockerfile
+This dockerfile will upload the data directly from url to postgres (using docker-compose file to create postgres db)
+### Build image
+```sh
+docker build -t climate_ingest:v001 .
+```
+### Run the image
+```sh
+docker run climate_ingest:v001 `
+      --user=root `
+      --password=root `
+      --host=pgdatabase `
+      --port=5432 `
+      --db=climate_data `
+      --table_name=jena_climate `
+      --url='https://test-esteban-270101.s3.us-east-1.amazonaws.com/jena_climate_2009_2016.csv'
+```
+Directly using python
+
+```python 
+python src/upload-data.py `
+      --user=root `
+      --password=root `
+      --host=localhost `
+      --port=5432 `
+      --db=climate_data `
+      --table_name=jena_climate `
+      --url='https://test-esteban-270101.s3.us-east-1.amazonaws.com/jena_climate_2009_2016.csv' 
+```
+
+Now we have the data inside the db.
 
