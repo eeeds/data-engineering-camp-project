@@ -117,6 +117,8 @@ terraform destroy -var="project=<your-gcp-project-id>"
 ```
 
 ## Local
+## Insertion trough docker.
+I'll create a script that upload the data in postgres (this postgres db will be created using docker)
 ### Docker-compose
 Compose is a tool for defining and running multi-container Docker applications. With Compose, you use a YAML file to configure your application’s services. Then, with a single command, you create and start all the services from your configuration.
 
@@ -156,7 +158,7 @@ docker-compose down
 ```
 
 ## Dockerfile
-This dockerfile will upload the data directly from url to postgres (using docker-compose file to create postgres db)
+This dockerfile will upload the data directly from url to postgres (using docker-compose file to create postgres db).
 ### Build image
 ```sh
 docker build -t climate_ingest:v001 .
@@ -187,3 +189,52 @@ python src/upload-data.py `
 
 Now we have the data inside the db.
 
+## Prefect
+I'll use prefect==2.7.7
+### Install prefect
+```sh
+pip install prefect==2.7.7
+```
+### Python script
+In order to use prefect. I'll create a script called `ingest-data.py`.
+
+[**Path**](src/ingest-data.py)
+
+Basically, in this script I have created some flows and tasks in order to transform the data and ingest it to postgres (docker-compose file).
+
+### Run the script
+```sh
+python src/ingest-data.py
+```
+![prefect](images/prefect-ingest-data.PNG)
+## Prefect UI
+### Start the UI
+```sh
+prefect orion start
+```
+### Create a sql alchemy block
+Import the connector
+```python
+from prefect_sqlalchemy import SqlAlchemyConnector
+```
+Now follow these steps:
+- Select a block name
+- Select SyncDriver and choose `postgresql + psycopg2`
+- Put the db name
+- Insert the username, password, host and the port.
+
+Call the block in the code:
+```python
+@task(log_prints = True, retries = 3)
+def load_data(table_name, df):
+    connection_block = SqlAlchemyConnector.load("data-engineering-camp-postgres-connector")
+    with connection_block.get_connection(begin = False) as engine:
+        df.head(n=0).to_sql(name=table_name, con=engine, if_exists='replace')
+        df.to_sql(name=table_name, con=engine, if_exists='append')
+```
+### Run the script again
+```sh
+python src/ingest-data.py
+```
+
+![prefect](images/prefect-ingest-data-block.PNG)
