@@ -212,7 +212,7 @@ python src/ingest-data.py
 ```sh
 prefect orion start
 ```
-### Create a sql alchemy block
+## Create a sql alchemy block
 Import the connector
 ```python
 from prefect_sqlalchemy import SqlAlchemyConnector
@@ -238,3 +238,23 @@ python src/ingest-data.py
 ```
 
 ![prefect](images/prefect-ingest-data-block.PNG)
+
+## Build a deployment
+```
+prefect deployment build ./src/ingest-data.py:main_flow -n "Ingest Data ETL"
+```
+## Apply the deployment
+```
+prefect deployment apply main_flow-deployment.yaml
+```
+## Start an agent using default Work Queue
+```
+prefect agent start -q 'default'
+```
+
+Go to the UI and click "Quick Run" to your deployment, after that you can start the agent. Your workflow should run.
+
+![prefect-deployment](images/prefect-deployment-agent.PNG)
+
+You can schedule this deployment. For instance, you can use cronjobs or intervals.
+

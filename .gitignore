@@ -1,3 +1,6 @@
 *.csv
 data/climate_data
 data/pgadmin
+*ignore*
+main_flow-deployment.yaml
+*cpython*
