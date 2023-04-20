@@ -44,6 +44,38 @@ def ingest_data(user, password, host, port, db, table_name, df):
 def log_subflow(table_name: str):
     print(f"Logging Subflow for: {table_name}")
 
+@task(log_prints = True, retries = 3)
+def create_partitioned_table(table_name):
+    table_name = table_name + '_partitioned'
+    connection_block = SqlAlchemyConnector.load("data-engineering-camp-postgres-connector")
+    with connection_block.get_connection(begin = False) as engine:
+        engine.execute(f"CREATE TABLE {table_name} ("
+                       "index bigint,"
+                       "date_time date,"
+                       "\"p (mbar)\" float,"
+                       "\"T (degC)\" float,"
+                       "\"Tpot (K)\" float,"
+                       "\"Tdew (degC)\" float,"
+                       "\"rh (%)\" float,"
+                       "\"VPmax (mbar)\" float,"
+                       "\"VPact (mbar)\" float,"
+                       "\"VPdef (mbar)\" float,"
+                       "\"sh (g/kg)\" float,"
+                       "\"H2OC (mmol/mol)\" float,"
+                       "\"rho (g/m**3)\" float,"
+                       "\"wv (m/s)\" float,"
+                       "\"max. wv (m/s)\" float,"
+                       "\"wd (deg)\" float"
+                       ") PARTITION BY RANGE (date_time);")
+    ## Create child partitioned table
+    with connection_block.get_connection(begin = False) as engine:
+        engine.execute(f"CREATE TABLE {table_name}_2009_2016 "
+                       f"PARTITION OF {table_name} "
+                       "FOR VALUES FROM ('2009-01-01') TO ('2016-12-31');")
+    ## Insert the data from original table to the partitioned data
+    with connection_block.get_connection(begin = False) as engine:
+        engine.execute(f"INSERT INTO {table_name} "
+                       f"SELECT * FROM jena_climate;")
 
 @flow(name="Ingest Data")
 def main_flow(table_name: str = "jena_climate"):
@@ -61,6 +93,7 @@ def main_flow(table_name: str = "jena_climate"):
     #data = transform_data(raw_data)
     load_data(table_name, data)
     #ingest_data(user, password, host, port, db, table_name, data)
+    create_partitioned_table(table_name)
 
 
 if __name__ == '__main__':

@@ -115,6 +115,7 @@ terraform apply -var="project=<your-gcp-project-id>"
 ```sh
 terraform destroy -var="project=<your-gcp-project-id>"
 ```
+# Problem Description
 
 ## Local
 ## Insertion trough docker.
@@ -188,7 +189,7 @@ python src/upload-data.py `
 ```
 
 Now we have the data inside the db.
-
+# Orchestration
 ## Prefect
 I'll use prefect==2.7.7
 ### Install prefect
@@ -257,4 +258,84 @@ Go to the UI and click "Quick Run" to your deployment, after that you can start 
 ![prefect-deployment](images/prefect-deployment-agent.PNG)
 
 You can schedule this deployment. For instance, you can use cronjobs or intervals.
+# Data Warehousing
+## Clustering and partitioning the data
 
+In this case our data which is defined as jena climate could be partitioned by date. We don't have another categorical variable for clustering.
+
+### Create a partitioned table in postgres
+```sql
+CREATE TABLE jena_climate_partitioned (
+    index bigint,
+    date_time date,
+    "p (mbar)" float,
+    "T (degC)" float,
+    "Tpot (K)" float,
+    "Tdew (degC)" float,
+    "rh (%)" float,
+    "VPmax (mbar)" float,
+    "VPact (mbar)" float,
+    "VPdef (mbar)" float,
+    "sh (g/kg)" float,
+    "H2OC (mmol/mol)" float,
+    "rho (g/m**3)" float,
+    "wv (m/s)" float,
+    "max. wv (m/s)" float,
+    "wd (deg)" float
+) PARTITION BY RANGE (date_time);
+```
+Next, you can create the partitions themselves using the CREATE TABLE ... PARTITION OF statement. This statement creates a new child table that is a partition of the parent partitioned table.
+```
+CREATE TABLE jena_climate_partitioned_2009_2016
+PARTITION OF jena_climate_partitioned
+FOR VALUES FROM ('2009-01-01') TO ('2016-12-31');
+```
+### Insert the data there
+```sql
+INSERT INTO jena_climate_partitioned
+SELECT * FROM jena_climate;
+```
+
+## Create a new flow to create the partitioned table 
+```python
+@task(log_prints = True, retries = 3)
+def create_partitioned_table(table_name):
+    connection_block = SqlAlchemyConnector.load("data-engineering-camp-postgres-connector")
+    with connection_block.get_connection(begin = False) as engine:
+        engine.execute(f"CREATE TABLE {table_name} ("
+                       "index bigint,"
+                       "date_time date,"
+                       "\"p (mbar)\" float,"
+                       "\"T (degC)\" float,"
+                       "\"Tpot (K)\" float,"
+                       "\"Tdew (degC)\" float,"
+                       "\"rh (%)\" float,"
+                       "\"VPmax (mbar)\" float,"
+                       "\"VPact (mbar)\" float,"
+                       "\"VPdef (mbar)\" float,"
+                       "\"sh (g/kg)\" float,"
+                       "\"H2OC (mmol/mol)\" float,"
+                       "\"rho (g/m**3)\" float,"
+                       "\"wv (m/s)\" float,"
+                       "\"max. wv (m/s)\" float,"
+                       "\"wd (deg)\" float"
+                       ") PARTITION BY RANGE (date_time);")
+    ## Create child partitioned table
+    with connection_block.get_connection(begin = False) as engine:
+        engine.execute(f"CREATE TABLE {table_name}_2009_2016 "
+                       f"PARTITION OF {table_name} "
+                       "FOR VALUES FROM ('2009-01-01') TO ('2016-12-31');")
+    ## Insert the data from original table to the partitioned data
+    with connection_block.get_connection(begin = False) as engine:
+        engine.execute(f"INSERT INTO {table_name} "
+                       f"SELECT * FROM jena_climate;")
+```
+# DBT 
+## Install DBT
+```sh
+pip install dbt-postgres==1.4.6
+```
+## Create a dbt project called climate_dbt
+```sh
+dbt init climate_dbt
+```
