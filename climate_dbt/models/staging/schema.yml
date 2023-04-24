@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: staging
+    database: climate_data
+    schema: public
+
+    tables:
+      - name: jena_climate
+      - name: jena_climate_partitioned

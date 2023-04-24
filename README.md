@@ -339,3 +339,58 @@ pip install dbt-postgres==1.4.6
 ```sh
 dbt init climate_dbt
 ```
+## Edit the file profiles.yml
+Use the following command to access to the file
+```sh
+code ~/.dbt/profiles.yml
+```
+Add the following code:
+```yml
+climate_dbt:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      threads: 1
+      host: localhost
+      port: 5432
+      user: root
+      pass: root
+      dbname: climate_data
+      schema: public
+```
+## Test connections
+```sh
+dbt debug 
+```
+![dbt-working](images/dbt-working.PNG)
+
+## Create a model
+I'll create a model called `climate_data_model.sql`. Before this you should create an schema a and define your tables and databases, for example:
+```yml
+version: 2
+
+sources:
+  - name: staging
+    database: climate_data
+    schema: public
+
+    tables:
+      - name: jena_climate
+      - name: jena_climate_partitioned
+```
+
+Then you should be able to create your dbt model. For intance, could be something like this:
+```sql
+{{ config(materialized='table') }}
+select * from climate_data.jena_climate
+```
+## Run the model
+```sh
+dbt run
+```
+![dbt-run](images/dbt-first-model.PNG)
+
+Now go to your pgadmin and see if the view was created.
+
+![dbt-view](images/dbt-view-created.PNG)
