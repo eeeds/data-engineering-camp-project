@@ -521,3 +521,23 @@ Then you can run the tests with the following command:
 ```sh
 dbt test
 ```
+
+![dbt-test](images/dbt-test.PNG)
+
+## Dbt docs
+See the documentation with
+```sh
+dbt docs generate
+```
+
+# Power BI
+I'll use PBI to show some insights from the data.
+## Connect to PBI
+1. Select `PostgreSQL DB`
+2. Put `localhost:5432` as server
+3. `climate_data` on database
+4. On query put the following: 
+```sql
+SELECT * FROM climate_data.jena_climate_partitioned
+```
+5. Accept

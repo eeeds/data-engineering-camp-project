@@ -4,3 +4,4 @@ data/pgadmin
 *ignore*
 main_flow-deployment.yaml
 *cpython*
+*lock*

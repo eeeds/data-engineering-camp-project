@@ -15,9 +15,9 @@ from prefect_sqlalchemy import SqlAlchemyConnector
 def extract_data(url:str='./jena_climate_2009_2016.csv'):
 
     csv_name = './jena_climate_2009_2016.csv'
-    df_iter = pd.read_csv(csv_name, iterator=True, chunksize=10000)
+    df_iter = pd.read_csv(csv_name)
     
-    df = next(df_iter)
+    df = df_iter
 
     df.rename(columns={'Date Time':'Date_Time'}, inplace=True)
     df.Date_Time = pd.to_datetime(df.Date_Time, format = '%d.%m.%Y %H:%M:%S')
@@ -92,8 +92,8 @@ def main_flow(table_name: str = "jena_climate"):
     data = extract_data()
     #data = transform_data(raw_data)
     load_data(table_name, data)
-    #ingest_data(user, password, host, port, db, table_name, data)
-    create_partitioned_table(table_name)
+    ingest_data(user, password, host, port, db, table_name, data)
+    #create_partitioned_table(table_name)
 
 
 if __name__ == '__main__':
