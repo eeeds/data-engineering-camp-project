@@ -394,3 +394,130 @@ dbt run
 Now go to your pgadmin and see if the view was created.
 
 ![dbt-view](images/dbt-view-created.PNG)
+
+## Dbt tests
+You can create tests for your models. For instance, you can test if the model has the same number of columns that the source table. You can create a file called `schema.yml` in the `models` folder. Then you can add the following code:
+```yml
+models:
+    - name: climate_data_model
+      description: >
+        View that collects all the data from a the partitioned table.
+      columns:
+        - name: index
+          description: Index of the table.
+          tests:
+            - unique:
+                severity: warn
+            - not_null:
+                severity: warn
+        - name: date_time
+          description: Date of the record.
+          tests:
+            - unique:
+                severity: warn
+            - not_null:
+                severity: warn
+        - name: p (mbar)
+          description: Pressure in mbar.
+          tests:
+            - unique:
+                severity: warn
+            - not_null:
+                severity: warn
+        - name: T (degC)  
+          description: Temperature in Celsius.
+          tests:
+            - unique:
+                severity: warn
+            - not_null:
+                severity: warn
+        - name: Tpot (K)
+          description: Temperature in Kelvin.
+          tests:
+            - unique:
+                severity: warn
+            - not_null:
+                severity: warn
+        - name: Tdew (degC)   
+          description: Temperature in Celsius.
+          tests:
+            - unique:
+                severity: warn
+            - not_null:
+                severity: warn  
+        - name: rh (%)  
+          description: Relative humidity in percentage.
+          tests:
+            - unique:
+                severity: warn
+            - not_null:
+                severity: warn
+        - name: VPmax (mbar)  
+          description: Maximum water vapor pressure in mbar.
+          tests:
+            - unique:
+                severity: warn
+            - not_null:
+                severity: warn
+        - name: VPact (mbar)  
+          description: Actual water vapor pressure in mbar.
+          tests:
+            - unique:
+                severity: warn
+            - not_null:
+                severity: warn
+        - name: VPdef (mbar)  
+          description: Water vapor pressure deficit in mbar.
+          tests:
+            - unique:
+                severity: warn
+            - not_null:
+                severity: warn
+        - name: sh (g/kg) 
+          description: Specific humidity in g/kg.
+          tests:
+            - unique:
+                severity: warn
+            - not_null:
+                severity: warn
+        - name: H2OC (mmol/mol)
+          description: Water vapor concentration in mmol/mol.
+          tests:
+            - unique:
+                severity: warn
+            - not_null:
+                severity: warn
+        - name: rho (g/m**3)
+          description: Air density in g/m**3.
+          tests:
+            - unique:
+                severity: warn
+            - not_null:
+                severity: warn
+        - name: wv (m/s)  
+          description: Wind velocity in m/s.
+          tests:
+            - unique:
+                severity: warn
+            - not_null:
+                severity: warn
+        - name: max. wv (m/s)
+          description: Maximum wind velocity in m/s.
+          tests:
+            - unique:
+                severity: warn
+            - not_null:
+                severity: warn
+        - name: wd (deg)  
+          description: Wind direction in degrees.
+          tests:
+            - unique:
+                severity: warn
+            - not_null:
+                severity: warn
+```
+
+Then you can run the tests with the following command:
+```sh
+dbt test
+```

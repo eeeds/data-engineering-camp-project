@@ -8,3 +8,18 @@ sources:
     tables:
       - name: jena_climate
       - name: jena_climate_partitioned
+
+
+models:
+    - name: climate_data_model
+      description: >
+        View that collects all the data from a the partitioned table.
+      columns:
+        - name: index
+          description: Index of the table.
+          tests:
+            - unique:
+                severity: warn
+            - not_null:
+                severity: warn
+                
