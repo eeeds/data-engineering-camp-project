@@ -1,14 +1,81 @@
-# Final Project for the Data Engineering Zoomcamp hosted by DataTalksClub.
+**Final Project for the Data Engineering Zoomcamp hosted by DataTalksClub.** 
+- [Cloud](#cloud)
+    - [What is Terraform?](#what-is-terraform)
+    - [Create a project in GCP](#create-a-project-in-gcp)
+    - [Install Google Cloud SDK](#install-google-cloud-sdk)
+    - [Make sure that all is working well using the command](#make-sure-that-all-is-working-well-using-the-command)
+    - [Add Rol to your service account](#add-rol-to-your-service-account)
+    - [Look for API's and enable `IAM Service Account Credentials API`](#look-for-apis-and-enable-iam-service-account-credentials-api)
+    - [Refresh service-account's auth-token for this season](#refresh-service-accounts-auth-token-for-this-season)
+    - [Creating GCP Infrastucture with Terraform](#creating-gcp-infrastucture-with-terraform)
+    - [Initialize state file (.tfstate)](#initialize-state-file-tfstate)
+    - [Check changes to new infra plan](#check-changes-to-new-infra-plan)
+  - [Terraform files](#terraform-files)
+    - [main.tf](#maintf)
+    - [variables.tf](#variablestf)
+  - [Overview of terraform commands](#overview-of-terraform-commands)
+  - [Terraform commands](#terraform-commands)
+    - [Initialize state file (.tfstate)](#initialize-state-file-tfstate-1)
+    - [Check changes to new infra plan](#check-changes-to-new-infra-plan-1)
+    - [Apply changes to new infra](#apply-changes-to-new-infra)
+    - [Destroy changes to new infra](#destroy-changes-to-new-infra)
+- [Problem Description](#problem-description)
+- [Local](#local)
+  - [Insertion through docker.](#insertion-through-docker)
+    - [Docker-compose](#docker-compose)
+    - [Docker-compose file](#docker-compose-file)
+    - [Install postgres](#install-postgres)
+    - [Install pgadmin](#install-pgadmin)
+    - [Make sure that you have both of them](#make-sure-that-you-have-both-of-them)
+    - [Run docker-compose](#run-docker-compose)
+    - [Check if the containers are running](#check-if-the-containers-are-running)
+    - [Stop docker-compose](#stop-docker-compose)
+  - [Dockerfile](#dockerfile)
+    - [Build image](#build-image)
+    - [Run the image](#run-the-image)
+- [Orchestration](#orchestration)
+  - [Prefect](#prefect)
+    - [Install prefect](#install-prefect)
+    - [Python script](#python-script)
+    - [Run the script](#run-the-script)
+  - [Prefect UI](#prefect-ui)
+    - [Start the UI](#start-the-ui)
+  - [Create an sql alchemy block](#create-an-sql-alchemy-block)
+    - [Run the script again](#run-the-script-again)
+  - [Build a deployment](#build-a-deployment)
+  - [Apply the deployment](#apply-the-deployment)
+  - [Start an agent using default Work Queue](#start-an-agent-using-default-work-queue)
+- [Data Warehousing](#data-warehousing)
+  - [Clustering and partitioning the data](#clustering-and-partitioning-the-data)
+    - [Create a partitioned table in postgres](#create-a-partitioned-table-in-postgres)
+    - [Insert the data there](#insert-the-data-there)
+  - [Create a new flow to create the partitioned table](#create-a-new-flow-to-create-the-partitioned-table)
+- [DBT](#dbt)
+  - [Install DBT](#install-dbt)
+  - [Create a dbt project called climate\_dbt](#create-a-dbt-project-called-climate_dbt)
+  - [Edit the file profiles.yml](#edit-the-file-profilesyml)
+  - [Test connections](#test-connections)
+  - [Create a model](#create-a-model)
+  - [Run the model](#run-the-model)
+  - [Dbt tests](#dbt-tests)
+  - [Dbt docs](#dbt-docs)
+- [Power BI](#power-bi)
+  - [Connect to PBI](#connect-to-pbi)
+  - [Simple Dashboard](#simple-dashboard)
+
 ## Dataset
 First at all, I'll work with a batch pipeline (the data will be updated day by day). I was looking for some climate data and I've chosen this [one](https://www.kaggle.com/datasets/mnassrib/jena-climate?resource=download).
 ## Pipeline diagram
 ## Technologies
 - Python
-- GCP (Google Cloud Plattform)
+- GCP (Google Cloud Plattform) /PostgreSQL
 - Prefect
 - DBT
-- Google Data Studio or Looker
+- Power BI
 - Terraform
+
+I've used all my GCP credits, so I decided to work using a local enviroment. Go to [Local](#Local).
+# Cloud
 ### What is Terraform?
 - Terraform is an open-source infrastructure as code software tool created by HashiCorp. Users define and provide data center infrastructure using a declarative configuration language known as HashiCorp Configuration Language, or optionally JSON.
 ### Create a project in GCP
@@ -117,8 +184,8 @@ terraform destroy -var="project=<your-gcp-project-id>"
 ```
 # Problem Description
 
-## Local
-## Insertion trough docker.
+# Local
+## Insertion through docker.
 I'll create a script that upload the data in postgres (this postgres db will be created using docker)
 ### Docker-compose
 Compose is a tool for defining and running multi-container Docker applications. With Compose, you use a YAML file to configure your application’s services. Then, with a single command, you create and start all the services from your configuration.
@@ -213,7 +280,7 @@ python src/ingest-data.py
 ```sh
 prefect orion start
 ```
-## Create a sql alchemy block
+## Create an sql alchemy block
 Import the connector
 ```python
 from prefect_sqlalchemy import SqlAlchemyConnector
@@ -541,3 +608,9 @@ I'll use PBI to show some insights from the data.
 SELECT * FROM climate_data.jena_climate_partitioned
 ```
 5. Accept
+
+## Simple Dashboard
+After working on Power BI I've got this simple dashboard where you can see some KPI's of the data.
+
+![dashboard](images/dashboard.PNG)
+I'll publish it soon!

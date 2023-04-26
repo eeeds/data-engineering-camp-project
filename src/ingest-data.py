@@ -87,7 +87,6 @@ def main_flow(table_name: str = "jena_climate"):
     table_name = "jena_climate"
 
 
-    #csv_url = "https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/yellow_tripdata_2021-01.csv.gz"
     log_subflow(table_name)
     data = extract_data()
     #data = transform_data(raw_data)
