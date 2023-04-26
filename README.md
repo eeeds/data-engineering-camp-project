@@ -185,6 +185,7 @@ terraform destroy -var="project=<your-gcp-project-id>"
 # Problem Description
 
 # Local
+![Project-diagram](images/Project%20diagram.png)
 ## Insertion through docker.
 I'll create a script that upload the data in postgres (this postgres db will be created using docker)
 ### Docker-compose
