@@ -20,6 +20,14 @@
     - [Apply changes to new infra](#apply-changes-to-new-infra)
     - [Destroy changes to new infra](#destroy-changes-to-new-infra)
 - [Problem Description](#problem-description)
+- [Run the project](#run-the-project)
+  - [Create a virtual enviroment](#create-a-virtual-enviroment)
+  - [Activate the enviroment](#activate-the-enviroment)
+  - [Install requirements](#install-requirements)
+  - [Run docker-compose file](#run-docker-compose-file)
+  - [Run python script in order to ingest the data](#run-python-script-in-order-to-ingest-the-data)
+  - [Run dbt](#run-dbt)
+  - [Run dbt tests](#run-dbt-tests)
 - [Local](#local)
   - [Insertion through docker.](#insertion-through-docker)
     - [Docker-compose](#docker-compose)
@@ -65,7 +73,6 @@
 
 ## Dataset
 First at all, I'll work with a batch pipeline (the data will be updated day by day). I was looking for some climate data and I've chosen this [one](https://www.kaggle.com/datasets/mnassrib/jena-climate?resource=download).
-## Pipeline diagram
 ## Technologies
 - Python
 - GCP (Google Cloud Plattform) /PostgreSQL
@@ -183,7 +190,38 @@ terraform apply -var="project=<your-gcp-project-id>"
 terraform destroy -var="project=<your-gcp-project-id>"
 ```
 # Problem Description
-
+I've took some climate data from Jena-Germany and analize some changes through the years (2009-2016).
+I would say that this data is easy to handle, but it will be ok for the project.
+# Run the project
+## Create a virtual enviroment
+```sh
+conda create -n venv python=3.9
+```
+## Activate the enviroment
+```sh
+conda activate venv
+```
+## Install requirements
+```sh
+pip install -r requirements.txt
+```
+## Run docker-compose file
+```sh
+docker-compose up -d
+```
+## Run python script in order to ingest the data
+```sh
+python src/ingest-data.py
+```
+## Run dbt
+```sh
+dbt build
+```
+## Run dbt tests
+```sh
+dbt tests
+```
+Then you will be able to see the data going to `localhost:8080` (pgadmin) and the view that we have created with dbt.
 # Local
 ![Project-diagram](images/Project%20diagram.png)
 ## Insertion through docker.
